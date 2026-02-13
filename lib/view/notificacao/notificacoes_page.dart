@@ -1,5 +1,6 @@
 import 'package:fixfycidadaoapp/cache/notificacoes_shared.dart';
 import 'package:fixfycidadaoapp/models/notificacoes/notificacoes_model.dart';
+import 'package:fixfycidadaoapp/view/componets/styles.dart';
 import 'package:flutter/material.dart';
 
 class NotificacoesPage extends StatefulWidget {
@@ -26,16 +27,72 @@ class _NotificacoesPageState extends State<NotificacoesPage> {
     });
   }
 
-  
+  void _abrirModalNotificacao(NotificacoesModel item) async {
+    if (!item.foiLido && item.id != null) {
+      await _service.marcarComoLida(item.id!);
+      _recarregar();
+    }
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => DraggableScrollableSheet(
+        initialChildSize: 0.5,
+        minChildSize: 0.3,
+        maxChildSize: 0.9,
+        expand: false,
+        builder: (context, scrollController) {
+          return Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+            ),
+            padding: const EdgeInsets.all(16),
+            child: ListView(
+              controller: scrollController,
+              children: [
+                Text(
+                  item.titulo ?? "Sem título",
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                SizedBox(height: 12),
+                Text(
+                  item.body ?? "Sem descrição",
+                  style: TextStyle(fontSize: 16),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Notificações'),
+        iconTheme: const IconThemeData(
+          color: Colors.white,
+        ),
+        title: Text(
+          'Notificações',
+          style: plusJakartaDisplayMedium.copyWith(
+            fontSize: 20,
+            color: Colors.white,
+          ),
+        ),
+        backgroundColor: Color(0xFF0D6EFD),
         actions: [
           IconButton(
-            icon: const Icon(Icons.delete_outline),
+            icon: const Icon(
+              Icons.delete_outline,
+              color: Colors.white,
+            ),
             onPressed: () async {
               await _service.limparNotificacoes();
               _recarregar();
@@ -81,14 +138,7 @@ class _NotificacoesPageState extends State<NotificacoesPage> {
                       _recarregar();
                     }
 
-                    // 👉 Navegação / links aqui
-                    if (item.linkInterno != null) {
-                      // Navigator.pushNamed(context, item.linkInterno!);
-                    }
-
-                    if (item.linkExterno != null) {
-                      // launchUrl(Uri.parse(item.linkExterno!));
-                    }
+                    _abrirModalNotificacao(item);
                   },
                 );
               },
@@ -99,6 +149,7 @@ class _NotificacoesPageState extends State<NotificacoesPage> {
     );
   }
 }
+
 class _NotificacaoItem extends StatelessWidget {
   final NotificacoesModel notificacao;
   final VoidCallback onTap;
@@ -118,9 +169,7 @@ class _NotificacaoItem extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: naoLida
-              ? Colors.blue.shade50
-              : Colors.grey.shade100,
+          color: naoLida ? Colors.blue.shade50 : Colors.grey.shade100,
           borderRadius: BorderRadius.circular(12),
         ),
         child: Row(
@@ -138,8 +187,7 @@ class _NotificacaoItem extends StatelessWidget {
                   Text(
                     notificacao.titulo.toString(),
                     style: TextStyle(
-                      fontWeight:
-                          naoLida ? FontWeight.bold : FontWeight.normal,
+                      fontWeight: naoLida ? FontWeight.bold : FontWeight.normal,
                       fontSize: 15,
                     ),
                   ),
@@ -152,9 +200,7 @@ class _NotificacaoItem extends StatelessWidget {
                   const SizedBox(height: 6),
                   Text(
                     '${notificacao.data} • ${notificacao.hora}',
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodySmall,
+                    style: Theme.of(context).textTheme.bodySmall,
                   ),
                 ],
               ),

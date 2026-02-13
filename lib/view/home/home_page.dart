@@ -1,3 +1,4 @@
+import 'package:fixfycidadaoapp/cache/notificacoes_shared.dart';
 import 'package:fixfycidadaoapp/cache/usuario_cpf_shared.dart';
 import 'package:fixfycidadaoapp/models/service/firebase_messaging_service.dart';
 import 'package:fixfycidadaoapp/view/componets/app_images.dart';
@@ -9,7 +10,6 @@ import 'package:fixfycidadaoapp/view/rive_app/navigation/side_menu.dart';
 import 'package:fixfycidadaoapp/view/rive_app/on_boarding/onboarding_view.dart';
 import 'package:fixfycidadaoapp/view/rive_app/theme.dart';
 import 'package:flutter/material.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 
 import 'package:flutter/physics.dart';
 import 'package:flutter/services.dart';
@@ -52,6 +52,7 @@ class HomePage extends StatefulWidget {
 }
 
 UsuarioSharedPreferences usuarioSharedPreferences = UsuarioSharedPreferences();
+final NotificacoesSharedService _service = NotificacoesSharedService();
 
 class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   late AnimationController? _animationController;
@@ -275,9 +276,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                               ),
                               const SizedBox(width: 2),
                               Text(
-                                // cidade.isNotEmpty && estado.isNotEmpty
-                                //     ? '$cidade - $estado'
-                                //     : 'Localização não informada',
                                 limitarTexto('$cidade - $estado', limite: 15),
                                 style: plusJakartaDisplayMedium.copyWith(
                                   color: Colors.white70,
@@ -298,47 +296,91 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
           const SizedBox(width: 49),
 
-          /// 🔔 NOTIFICAÇÃO
-          InkWell(
-            borderRadius: BorderRadius.circular(8),
-            onTap: () {
-              Navigator.of(context).push(
-                  MaterialPageRoute(builder: (context) => NotificacoesPage()));
-            },
-            child: SvgPicture.asset(
-              AppImages.notification,
-              height: 40,
-            ),
-          ),
+          ValueListenableBuilder<int>(
+            valueListenable: NotificacoesSharedService().notificacoesNaoLidas,
+            builder: (context, count, _) {
+              // Largura do espaçamento depende se o ícone está visível
+              final spacingWidth = count == 0 ? 30.0 : 15.0;
 
-          const SizedBox(width: 15),
-
-          /// 🍔 MENU
-          SizedBox(
-            width: 44,
-            height: 44,
-            child: Stack(
-              children: [
-                RiveAnimation.asset(
-                  app_assets.menuButtonRiv,
-                  stateMachines: const ["State Machine"],
-                  animations: const ["open", "close"],
-                  onInit: _onMenuIconInit,
-                ),
-                Positioned.fill(
-                  child: Material(
-                    color: Colors.transparent,
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(22),
+              return Row(
+                children: [
+                  // Ícone de notificação (só aparece se count > 0)
+                  if (count > 0)
+                    InkWell(
+                      borderRadius: BorderRadius.circular(8),
                       onTap: () {
-                        print("MENU CLICADO");
-                        onMenuPress();
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                              builder: (context) => NotificacoesPage()),
+                        );
                       },
+                      child: Stack(
+                        clipBehavior: Clip.none,
+                        children: [
+                          SvgPicture.asset(
+                            AppImages.notification,
+                            height: 40,
+                          ),
+                          Positioned(
+                            top: -2,
+                            right: -2,
+                            child: Container(
+                              padding: const EdgeInsets.all(4),
+                              decoration: BoxDecoration(
+                                color: Colors.red,
+                                shape: BoxShape.circle,
+                              ),
+                              constraints: const BoxConstraints(
+                                  minWidth: 16, minHeight: 16),
+                              child: Center(
+                                child: Text(
+                                  '$count',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                  // Espaçamento dinâmico
+                  SizedBox(width: spacingWidth),
+
+                  /// 🍔 MENU
+                  SizedBox(
+                    width: 44,
+                    height: 44,
+                    child: Stack(
+                      children: [
+                        RiveAnimation.asset(
+                          app_assets.menuButtonRiv,
+                          stateMachines: const ["State Machine"],
+                          animations: const ["open", "close"],
+                          onInit: _onMenuIconInit,
+                        ),
+                        Positioned.fill(
+                          child: Material(
+                            color: Colors.transparent,
+                            child: InkWell(
+                              borderRadius: BorderRadius.circular(22),
+                              onTap: () {
+                                print("MENU CLICADO");
+                                onMenuPress();
+                              },
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                ),
-              ],
-            ),
+                ],
+              );
+            },
           ),
         ],
       ),

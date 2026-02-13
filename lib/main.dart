@@ -79,11 +79,6 @@ Future<void> recebeNotificacaoFirebaseAppFechado(
     data: dataAtual,
     hora: horaAtual,
     foiLido: false,
-    dataHoraEnvio: message.data['dataHoraEnvio'] != null
-        ? DateTime.parse(message.data['dataHoraEnvio'])
-        : DateTime.now(),
-    linkExterno: message.data['link_externo'],
-    linkInterno: message.data['link_interno'],
   );
 
   await NotificacoesSharedService().salvarNotificacao(notificacao);

@@ -49,33 +49,38 @@ class FirebaseMessaginService {
     // //Recebimento de notificacao
     FirebaseMessaging.onMessage.listen((RemoteMessage mensagem) async {
       print("CHEGOU");
+      print(mensagem);
+
+      String titulo = mensagem.notification?.title ?? "Sem título";
+      String corpo = mensagem.notification?.body ?? "Sem corpo";
+
       if (Platform.isAndroid) {
         servicoDeNotificacoes.mostrarNotificacaoLocal(
           CustomNotification(
             id: 1,
-            title: mensagem.notification!.title,
-            body: mensagem.notification!.body,
-            linkExterno: mensagem.data['link_externo'],
-            linkInterno: mensagem.data['link_interno'],
+            title: titulo,
+            body: corpo,
           ),
         );
       }
 
       String dataAtual = buscaDataAtual();
       String horaAtual = buscaHoraAtual();
+
       var notificacoes = NotificacoesModel(
-        id: mensagem.messageId,
-        titulo: mensagem.notification!.title,
-        body: mensagem.notification!.body,
+        id: mensagem.messageId ??
+            DateTime.now().millisecondsSinceEpoch.toString(),
+        titulo: titulo,
+        body: corpo,
         data: dataAtual,
         hora: horaAtual,
         foiLido: false,
-        dataHoraEnvio: DateTime.parse(mensagem.data['dataHoraEnvio']),
       );
 
       print('foreground message (controleDeNotificacoesDoFirebase)');
 
-      await NotificacoesSharedService().salvarNotificacao(notificacoes);
+      final service = NotificacoesSharedService();
+      await service.salvarNotificacao(notificacoes);
     });
 
     // app em Segundo Plano

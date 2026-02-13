@@ -9,24 +9,13 @@ class CustomNotification {
   final String? title;
   final String? body;
   final String? payload;
-  final String? linkExterno;
-  final String? linkInterno;
 
   CustomNotification({
     this.id,
     this.title,
     this.body,
     this.payload,
-    this.linkExterno,
-    this.linkInterno,
   });
-
-  String toPayload() {
-    return jsonEncode({
-      "link_externo": linkExterno,
-      "link_interno": linkInterno,
-    });
-  }
 }
 
 class ServicoDeNotificacoes {
@@ -117,7 +106,7 @@ class ServicoDeNotificacoes {
         android: androidNotificationDetails,
         iOS: iosNotificationDetails,
       ),
-      payload: notification.toPayload(),
+      // payload: notification.toPayload(),
     );
   }
 }

@@ -5,9 +5,7 @@ class NotificacoesModel {
   final String data;
   final String hora;
   final bool foiLido;
-  final DateTime dataHoraEnvio;
-  final String? linkExterno;
-  final String? linkInterno;
+
 
   NotificacoesModel({
     this.id,
@@ -16,9 +14,6 @@ class NotificacoesModel {
     required this.data,
     required this.hora,
     required this.foiLido,
-    required this.dataHoraEnvio,
-    this.linkExterno,
-    this.linkInterno,
   });
 
   Map<String, dynamic> toJson() {
@@ -29,9 +24,6 @@ class NotificacoesModel {
       'data': data,
       'hora': hora,
       'foiLido': foiLido,
-      'dataHoraEnvio': dataHoraEnvio.toIso8601String(),
-      'linkExterno': linkExterno,
-      'linkInterno': linkInterno,
     };
   }
 
@@ -43,9 +35,6 @@ class NotificacoesModel {
       data: json['data'],
       hora: json['hora'],
       foiLido: json['foiLido'] ?? false,
-      dataHoraEnvio: DateTime.parse(json['dataHoraEnvio']),
-      linkExterno: json['linkExterno'],
-      linkInterno: json['linkInterno'],
     );
   }
 }
